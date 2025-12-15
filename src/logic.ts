@@ -1,11 +1,15 @@
 import type { Order, OrderItem, OrderList } from "./types";
 
 const calculateItemValue = (item: OrderItem): number => {
-  return 0;
+  return item.unitPrice.amount * item.quantity;
 };
 
 export const calculateOrderTotal = (order: Order): number => {
-  return 0;
+  const itemsTotal = order.items.reduce(
+    (acc, item) => acc + calculateItemValue(item),
+    0
+  );
+  return itemsTotal - (order.discount || 0);
 };
 
 export const filterCompleted =
@@ -17,15 +21,16 @@ export const filterCompleted =
 export const filterHighValueOrders =
   (threshold: number) =>
   (orders: OrderList): OrderList => {
+    orders = orders.filter((o) => calculateOrderTotal(o) >= threshold);
     return orders;
   };
 
 export const getCustomerIds =
   () =>
   (orders: OrderList): ReadonlyArray<string> => {
-    return [];
+    return orders.map((o) => o.customerId);
   };
 
 export const totalRevenue = (orders: OrderList): number => {
-  return 0;
+  return orders.reduce((acc, order) => acc + calculateOrderTotal(order), 0);
 };
